@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    Timeout: 10
+Resources:
+  GetCustomersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/lambdas/getCustomers.handler
+      Runtime: nodejs20.x
+      CodeUri: s3://aws-sam-cli-managed-default-samclisourcebucket-8tnb6o3subsm/d0c7fb12882bbed6be88e3dea5ae16bb
+      Events:
+        GetCustomersApi:
+          Type: Api
+          Properties:
+            Path: /customers
+            Method: get
+    Metadata:
+      SamResourceId: GetCustomersFunction
