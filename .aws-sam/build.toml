@@ -7,6 +7,6 @@ architecture = "x86_64"
 handler = "src/lambdas/getCustomers.handler"
 manifest_hash = ""
 packagetype = "Zip"
-functions = ["GetCustomersFunction"]
+functions = ["GetCustomersFunction", "SearchCustomersFunction"]
 
 [layer_build_definitions]

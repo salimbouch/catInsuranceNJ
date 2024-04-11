@@ -28,44 +28,57 @@ class CustomerService {
     async deleteCustomer(id) {
         return await this.database.delete('Customer', id);
     }
-    async getAllCustomers() {
-        try {
-          const customersData = await this.database.query('SELECT * FROM Customer');
+
+    async getAllCustomers(queryParams) {
       
+      try {
+          const page = parseInt(queryParams?.page ?? 1);
+          const pageSize = parseInt(queryParams?.pageSize ?? 10);
+          const offset = (page - 1) * pageSize;
+          const sql = `
+              SELECT * FROM Customer
+              LIMIT ? OFFSET ?
+          `;
+  
+          const values = [pageSize, offset];
+          const customersData = await this.database.query(sql, values);
+  
           const customers = customersData.map(customerData => {
-            const address = new Address(
-                customerData.street || '', // Provide default values in case of null
-                customerData.houseNumber || '',
-                customerData.zipCode || 0, // Assuming zipCode is a number, provide a default numeric value
-                customerData.city || ''
+              const address = new Address(
+                  customerData.street || '',
+                  customerData.houseNumber || '',
+                  customerData.zipCode || 0,
+                  customerData.city || ''
               );
-      
+  
               const bankDetails = new BankDetails(
-                customerData.iban || '',
-                customerData.bic || '',
-                customerData.name || ''
+                  customerData.iban || '',
+                  customerData.bic || '',
+                  customerData.name || ''
               );
-            return new Customer(
-              customerData.id,
-              customerData.firstName, // Use empty string for null firstName
-              customerData.lastName,  // Use empty string for null lastName
-              customerData.title,
-              customerData.familyStatus,
-              customerData.birthDate,
-              customerData.socialSecurityNumber, // ... and so on
-              customerData.taxId,
-              customerData.email,
-              address,
-              bankDetails
-            );
+  
+              return new Customer(
+                  customerData.id,
+                  customerData.firstName,
+                  customerData.lastName,
+                  customerData.title,
+                  customerData.familyStatus,
+                  customerData.birthDate,
+                  customerData.socialSecurityNumber,
+                  customerData.taxId,
+                  customerData.email,
+                  address,
+                  bankDetails
+              );
           });
-      
+  
           return customers;
-        } catch (error) {
+      } catch (error) {
           console.error('Error retrieving customers:', error);
           throw error;
-        }
       }
+  }
+  
 
     async searchCustomers(queryParams) {
         try {
@@ -77,12 +90,10 @@ class CustomerService {
             // Construct the SQL query
             const sql = `
                 SELECT * FROM Customer
-                LEFT JOIN Address ON Customer.addressId = Address.id
-                LEFT JOIN BankDetails ON Customer.bankDetailsId = BankDetails.id
                 WHERE 
                     Customer.firstName LIKE ? OR
                     Customer.lastName LIKE ? OR
-                    Address.street LIKE ?
+                    Customer.street LIKE ?
                 LIMIT ? OFFSET ?
             `;
             
@@ -94,9 +105,9 @@ class CustomerService {
 
             // Map the raw database results to Customer objects
             const customers = customersData.map(customerData => {
-                const address = new Address(customerData.addressId, customerData.street, customerData.houseNumber, customerData.zipCode, customerData.city);
-                const bankDetails = new BankDetails(customerData.bankDetailsId, customerData.iban, customerData.bic, customerData.bankName);
-                return new Customer(customerData.id, customerData.firstName, customerData.lastName, customerData.title, customerData.familyStatus, customerData.birthDate, customerData.socialSecurityNumber, customerData.taxId, customerData.jobStatus, address, bankDetails, customerData.email);
+                const address = new Address(customerData.street, customerData.houseNumber, customerData.zipCode, customerData.city);
+                const bankDetails = new BankDetails(customerData.iban, customerData.bic, customerData.name);
+                return new Customer(customerData.id, customerData.firstName, customerData.lastName, customerData.title, customerData.familyStatus, customerData.birthDate, customerData.socialSecurityNumber, customerData.taxId, customerData.email, address, bankDetails);
             });
 
             return customers;

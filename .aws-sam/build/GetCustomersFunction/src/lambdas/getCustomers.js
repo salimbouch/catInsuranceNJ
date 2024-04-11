@@ -3,6 +3,8 @@ const CustomerService = require('../services/CustomerService');
 
 exports.handler = async (event) => {
   try {
+    // Parse query parameters from the event object
+    const queryParams = event.queryStringParameters;
     // Create an instance of the Database class
     const database = new Database();
     // Connect to the database
@@ -12,7 +14,7 @@ exports.handler = async (event) => {
     const customerService = new CustomerService(database);
 
     // Call the getCustomers() method from the CustomerService
-    const customers = await customerService.getAllCustomers();
+    const customers = await customerService.getAllCustomers(queryParams);
 
     // Disconnect from the database
     await database.disconnect();

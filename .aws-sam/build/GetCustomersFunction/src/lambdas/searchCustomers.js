@@ -24,6 +24,12 @@ exports.handler = async (event) => {
     // Return the customers as a JSON response
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Credentials": true, // Required for cookies, authorization headers with HTTPS
+        "Access-Control-Allow-Methods": "*",
+        "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+      },
       body: JSON.stringify(customers),
     };
   } catch (error) {
@@ -31,7 +37,7 @@ exports.handler = async (event) => {
     // Return an error response
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Internal server error' }),
+      body: JSON.stringify({ message: 'Internal server error '+error}),
     };
   }
 };

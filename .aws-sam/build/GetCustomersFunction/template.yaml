@@ -12,9 +12,23 @@ Resources:
       Handler: src/lambdas/getCustomers.handler
       Runtime: nodejs20.x
       CodeUri: ./
+      Role: arn:aws:iam::571832093814:role/catInsuranceRole
       Events:
         GetCustomersApi:
           Type: Api
           Properties:
             Path: /customers
+            Method: get
+  SearchCustomersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/lambdas/searchCustomers.handler
+      Runtime: nodejs20.x
+      CodeUri: ./
+      Role: arn:aws:iam::571832093814:role/catInsuranceRole
+      Events:
+        SearchCustomersApi:
+          Type: Api
+          Properties:
+            Path: /customers/search
             Method: get
